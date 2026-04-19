@@ -1,4 +1,5 @@
 #include "matrix.h"
+#include <string.h>
 
 void matrix_create(Matrix *m, Arena *a, int rows, int cols)
 {
@@ -76,9 +77,7 @@ void matrix_hadamard(Matrix *rop, Matrix *op1, Matrix *op2)
 
 void matrix_copy(Matrix *dst, Matrix *src)
 {
-	for (int i = 0; i < MAT_SIZE(dst); i++) {
-		MAT_GET(dst, i) = MAT_GET(src, i);
-	}
+	memcpy(dst->data, src->data, sizeof(float) * MAT_SIZE(dst));
 }
 
 void matrix_map(Matrix *rop, Matrix *op, float (*fn)(float))
@@ -86,5 +85,10 @@ void matrix_map(Matrix *rop, Matrix *op, float (*fn)(float))
 	for (int i = 0; i < MAT_SIZE(rop); i++) {
 		MAT_GET(rop, i) = fn(MAT_GET(op, i));
 	}
+}
+
+void matrix_zero(Matrix *rop)
+{
+	memset(rop->data, 0, sizeof(float) * MAT_SIZE(rop));
 }
 

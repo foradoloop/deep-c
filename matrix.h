@@ -28,6 +28,7 @@ void matrix_mul_abt(Matrix *rop, Matrix *a, Matrix *bt);
 void matrix_hadamard(Matrix *rop, Matrix *op1, Matrix *op2);
 void matrix_copy(Matrix *dst, Matrix *src);
 void matrix_map(Matrix *rop, Matrix *op, float (*fn)(float));
+void matrix_zero(Matrix *rop);
 
 #endif
 
