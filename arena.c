@@ -37,14 +37,14 @@ void *arena_alloc(Arena *a, size_t alloc)
 	return ptr;
 }
 
-void arena_checkpoint(Arena *a)
+size_t arena_checkpoint(Arena *a)
 {
-	a->checkpoint = a->offset;
+	return a->offset;
 }
 
-void arena_restore(Arena *a)
+void arena_restore(Arena *a, size_t checkpoint)
 {
-	a->offset = a->checkpoint;
+	a->offset = checkpoint;
 }
 
 void arena_reset(Arena *a)

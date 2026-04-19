@@ -25,8 +25,8 @@ typedef struct arena Arena;
 void arena_create(Arena *a, size_t size);
 void arena_init(Arena *a, unsigned char *buffer, size_t buflen);
 void *arena_alloc(Arena *a, size_t alloc);
-void arena_checkpoint(Arena *a);
-void arena_restore(Arena *a);
+size_t arena_checkpoint(Arena *a);
+void arena_restore(Arena *a, size_t checkpoint);
 void arena_reset(Arena *a);
 void arena_destroy(Arena *a);
 
