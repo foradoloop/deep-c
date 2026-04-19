@@ -18,7 +18,6 @@ struct arena {
 	unsigned char *ptr;
 	size_t size;
 	size_t offset;
-	size_t checkpoint;
 };
 typedef struct arena Arena;
 

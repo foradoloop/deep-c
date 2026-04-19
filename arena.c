@@ -11,7 +11,6 @@ void arena_create(Arena *a, size_t size)
 	}
 	a->size = size;
 	a->offset = 0;
-	a->checkpoint = 0;
 }
 
 void arena_init(Arena *a, unsigned char *buffer, size_t buflen)
@@ -19,7 +18,6 @@ void arena_init(Arena *a, unsigned char *buffer, size_t buflen)
 	a->ptr = buffer;
 	a->size = buflen;
 	a->offset = 0;
-	a->checkpoint = 0;
 }
 
 void *arena_alloc(Arena *a, size_t alloc)
@@ -50,7 +48,6 @@ void arena_restore(Arena *a, size_t checkpoint)
 void arena_reset(Arena *a)
 {
 	a->offset = 0;
-	a->checkpoint = 0;
 }
 
 void arena_destroy(Arena *a)
@@ -59,6 +56,5 @@ void arena_destroy(Arena *a)
 	a->ptr = NULL;
 	a->size = 0;
 	a->offset = 0;
-	a->checkpoint = 0;
 }
 
