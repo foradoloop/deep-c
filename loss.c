@@ -13,17 +13,17 @@ static const Loss loss_table[] = {
 	_mse_loss
 };
 
-void loss_init(Loss *loss, int type)
+const Loss *loss(int type)
 {
-	*loss = loss_table[type];
+	return &loss_table[type];
 }
 
-float loss_forward(Loss *loss, Matrix *pred, Matrix *tar)
+float loss_forward(const Loss *loss, Matrix *pred, Matrix *tar)
 {
 	return loss->_output(pred, tar);
 }
 
-void loss_backward(Loss *loss, Matrix *grad_loss, Matrix *pred, Matrix *tar)
+void loss_backward(const Loss *loss, Matrix *grad_loss, Matrix *pred, Matrix *tar)
 {
 	loss->_input_grad(grad_loss, pred, tar);
 

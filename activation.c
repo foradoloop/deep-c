@@ -34,9 +34,9 @@ static const Activation act_table[] = {
 	sigmoid_act
 };
 
-void activation_init(Activation *act, int type)
+const Activation *activation(int type)
 {
-	*act = act_table[type];
+	return &act_table[type];
 }
 
 static float _tanh_forward(float x)

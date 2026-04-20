@@ -14,9 +14,9 @@ struct loss {
 };
 typedef struct loss Loss;
 
-void loss_init(Loss *loss, int type);
-float loss_forward(Loss *loss, Matrix *pred, Matrix *tar);
-void loss_backward(Loss *loss, Matrix *grad_loss, Matrix *pred, Matrix *tar);
+const Loss *loss(int type);
+float loss_forward(const Loss *loss, Matrix *pred, Matrix *tar);
+void loss_backward(const Loss *loss, Matrix *grad_loss, Matrix *pred, Matrix *tar);
 
 #endif
 

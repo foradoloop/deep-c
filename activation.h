@@ -14,7 +14,7 @@ struct activation {
 };
 typedef struct activation Activation;
 
-void activation_init(Activation *act, int type);
+const Activation *activation(int type);
 
 #endif
 
