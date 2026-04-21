@@ -9,14 +9,20 @@
 struct neural_network {
 	Layer *layers;
 	int num_layers;
-	Loss loss;
+	const Loss *loss;
 };
 typedef struct neural_network Net;
 
 void net_init(Net *net, Layer *layers, int num_layers, int loss_type);
+void net_setup(Net *net);
 Matrix *net_forward(Net *net, Matrix *x_batch);
 void net_backward(Net *net, Matrix *grad_loss);
 float train_batch(Net *net, Arena *a, Matrix *x_batch, Matrix *y_batch);
+Matrix **net_params(Net *net, Arena *a);
+Matrix **net_grad_params(Net *net, Arena *a);
+int net_num_params(Net *net);
+void net_copy(Net *dst, Net *src);
+Net *net_clone(Net *src, Arena *a);
 
 #endif
 

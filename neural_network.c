@@ -4,7 +4,16 @@ void net_init(Net *net, Layer *layers, int num_layers, int loss_type)
 {
 	net->layers = layers;
 	net->num_layers = num_layers;
-	loss_init(&net->loss, loss_type);
+	net->loss = loss(loss_type);
+}
+
+void net_setup(Net *net)
+{
+	for (int i = 0; i < net->num_layers; i++) {
+		Layer *l = net->layers + i;
+
+		layer_setup(l);
+	}
 }
 
 Matrix *net_forward(Net *net, Matrix *x_batch)
@@ -31,19 +40,90 @@ float train_batch(Net *net, Arena *a, Matrix *x_batch, Matrix *y_batch)
 {
 	Matrix *pred = net_forward(net, x_batch);
 
-	float loss = loss_forward(&net->loss, pred, y_batch);
-
-	arena_checkpoint(a);
+	float loss = loss_forward(net->loss, pred, y_batch);
 
 	Matrix grad_loss;
 	matrix_create(&grad_loss, a, MAT_ROWS(pred), 1);
 
-	loss_backward(&net->loss, &grad_loss, pred, y_batch);
+	loss_backward(net->loss, &grad_loss, pred, y_batch);
 
 	net_backward(net, &grad_loss);
 
-	arena_restore(a);
-
 	return loss;
+}
+
+Matrix **net_params(Net *net, Arena *a)
+{
+	Matrix **params;
+
+	params = arena_alloc_arr(a, Matrix *, net->num_layers * 2);
+
+	for (int i = 0; i < net->num_layers; i++) {
+		Layer *l = &net->layers[i];
+
+		params[i * 2] = &l->w;
+		params[i * 2 + 1] = &l->b;
+	}
+
+	return params;
+}
+
+Matrix **net_grad_params(Net *net, Arena *a)
+{
+	Matrix **grads;
+
+	grads = arena_alloc_arr(a, Matrix *, net->num_layers * 2);
+
+	for (int i = 0; i < net->num_layers; i++) {
+		Layer *l = &net->layers[i];
+
+		grads[i * 2] = &l->grad_w;
+		grads[i * 2 + 1] = &l->grad_b;
+	}	
+
+	return grads;
+}
+
+int net_num_params(Net *net)
+{
+	return net->num_layers * 2;
+}
+
+void net_copy(Net *dst, Net *src)
+{
+	for (int i = 0; i < src->num_layers; i++) {
+		Layer *l_dst = dst->layers + i;
+		Layer *l_src = src->layers + i;
+
+		layer_copy(l_dst, l_src);
+	}
+}
+
+Net *net_clone(Net *src, Arena *a)
+{
+	Net *net;
+	int num_layers;
+	Layer *layers;
+	int act_type;
+	int init_type;
+
+	net = arena_alloc_obj(a, Net);
+	num_layers = src->num_layers;
+	layers = arena_alloc_arr(a, Layer, num_layers);
+
+	for (int i = 0; i < num_layers; i++) {
+		Layer *ls = src->layers + i;
+		act_type = ls->act->type;
+		init_type = ls->init->type;
+
+		layer_create(layers + i, a, MAT_COLS(&ls->w), MAT_ROWS(&ls->w), act_type, init_type);
+		layer_copy(layers + i, ls);
+	}
+
+	net->layers = layers;
+	net->num_layers = num_layers;
+	net->loss = src->loss;
+
+	return net;
 }
 
