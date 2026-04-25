@@ -15,7 +15,7 @@ struct layer {
 	Matrix delta;
 	Matrix grad_w;
 	Matrix grad_b;
-	Matrix grad_out;
+	Matrix grad_y;
 	const Activation *act;
 	const Init *init;
 };

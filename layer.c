@@ -3,16 +3,20 @@
 
 void layer_create(Layer *l, Arena *a, int in, int out, int act_type, int init_type)
 {
-	matrix_create(&l->w, a, out, in);
-	matrix_create(&l->x, a, in, 1);
-	matrix_create(&l->b, a, out, 1);
-	matrix_create(&l->i, a, out, 1);
-	matrix_create(&l->y, a, out, 1);
-	matrix_create(&l->di, a, out, 1);
-	matrix_create(&l->delta, a, out, 1);
-	matrix_create(&l->grad_w, a, out, in);
-	matrix_create(&l->grad_b, a, out, 1);
-	matrix_create(&l->grad_out, a, in, 1);
+	/* Forward */
+	matrix_create(&l->w, a, in, out);
+	matrix_create(&l->x, a, 1, in);
+	matrix_create(&l->b, a, 1, out);
+	matrix_create(&l->i, a, 1, out);
+	matrix_create(&l->y, a, 1, out);
+
+	/* Backward */
+	matrix_create(&l->di, a, 1, out);
+	matrix_create(&l->delta, a, 1, out);
+	matrix_create(&l->grad_w, a, in, out);
+	matrix_create(&l->grad_b, a, 1, out);
+	matrix_create(&l->grad_y, a, 1, in);
+
 	l->act = activation(act_type);
 	l->init = initializer(init_type);
 }
@@ -20,8 +24,8 @@ void layer_create(Layer *l, Arena *a, int in, int out, int act_type, int init_ty
 void layer_setup(Layer *l)
 {
 	Matrix *w = &l->w;
-	int in = MAT_COLS(w);
-	int out = MAT_ROWS(w);
+	int in = MAT_ROWS(w);
+	int out = MAT_COLS(w);
 
 	for (int i = 0; i < MAT_SIZE(&l->w); i++) {
 		MAT_GET(w, i) = l->init->apply(in, out);
@@ -32,26 +36,35 @@ void layer_setup(Layer *l)
 
 Matrix *layer_forward(Layer *l, Matrix *input)
 {
+	/* Input cache  */
 	matrix_copy(&l->x, input);
-	matrix_mul_ab(&l->i, &l->w, &l->x);
+
+	/* Linear combination */
+	matrix_mul_ab(&l->i, &l->x, &l->w);
 	matrix_add(&l->i, &l->i, &l->b);
+
+	/* Output */
 	matrix_map(&l->y, &l->i, l->act->forward);
 
 	return &l->y;
 }
 
-Matrix *layer_backward(Layer *l, Matrix *grad_out)
+Matrix *layer_backward(Layer *l, Matrix *grad_y)
 {
+	/* Delta */
 	matrix_map(&l->di, &l->y, l->act->backward);
-	matrix_hadamard(&l->delta, grad_out, &l->di);
+	matrix_hadamard(&l->delta, grad_y, &l->di);
 
-	matrix_mul_abt(&l->grad_w, &l->delta, &l->x);
+	/* Weight gradient */
+	matrix_mul_atb(&l->grad_w, &l->x, &l->delta);
 
+	/* Bias gradient */
 	matrix_copy(&l->grad_b, &l->delta);
 
-	matrix_mul_atb(&l->grad_out, &l->w, &l->delta);
+	/* Output gradient */
+	matrix_mul_abt(&l->grad_y, &l->delta, &l->w);
 
-	return &l->grad_out;
+	return &l->grad_y;
 }
 
 void layer_copy(Layer *dst, Layer *src)
