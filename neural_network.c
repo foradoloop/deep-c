@@ -29,10 +29,10 @@ Matrix *net_forward(Net *net, Matrix *x_batch)
 
 void net_backward(Net *net, Matrix *grad_loss)
 {
-	Matrix *grad_out = grad_loss;
+	Matrix *grad_y = grad_loss;
 
 	for (int i = net->num_layers - 1; i >= 0; i--) {
-		grad_out = layer_backward(&net->layers[i], grad_out);
+		grad_y = layer_backward(&net->layers[i], grad_y);
 	}
 }
 
@@ -42,12 +42,16 @@ float train_batch(Net *net, Arena *a, Matrix *x_batch, Matrix *y_batch)
 
 	float loss = loss_forward(net->loss, pred, y_batch);
 
+	size_t cp = arena_checkpoint(a);
+
 	Matrix grad_loss;
-	matrix_create(&grad_loss, a, MAT_ROWS(pred), 1);
+	matrix_create(&grad_loss, a, MAT_ROWS(pred), MAT_COLS(pred));
 
 	loss_backward(net->loss, &grad_loss, pred, y_batch);
 
 	net_backward(net, &grad_loss);
+
+	arena_restore(a, cp);
 
 	return loss;
 }
@@ -115,8 +119,10 @@ Net *net_clone(Net *src, Arena *a)
 		Layer *ls = src->layers + i;
 		act_type = ls->act->type;
 		init_type = ls->init->type;
+		int in = MAT_ROWS(&ls->w);
+		int out = MAT_COLS(&ls->w);
 
-		layer_create(layers + i, a, MAT_COLS(&ls->w), MAT_ROWS(&ls->w), act_type, init_type);
+		layer_create(layers + i, a, in, out, act_type, init_type);
 		layer_copy(layers + i, ls);
 	}
 
