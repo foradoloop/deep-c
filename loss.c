@@ -39,7 +39,7 @@ static float _mse_output(Matrix *pred, Matrix *tar)
 		loss += diff * diff;
 	}
 
-	loss /= MAT_ROWS(pred);
+	loss /= MAT_SIZE(pred);
 
 	return loss;
 }
@@ -47,7 +47,7 @@ static float _mse_output(Matrix *pred, Matrix *tar)
 void _mse_input_grad(Matrix *grad_loss, Matrix *pred, Matrix *tar)
 {
 	for (int i = 0; i < MAT_SIZE(grad_loss); i++) {
-		MAT_GET(grad_loss, i) = 2.0f * (MAT_GET(pred, i) - MAT_GET(tar, i)) / MAT_ROWS(pred);
+		MAT_GET(grad_loss, i) = 2.0f * (MAT_GET(pred, i) - MAT_GET(tar, i)) / MAT_SIZE(pred);
 	}
 }
 
