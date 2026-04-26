@@ -92,3 +92,22 @@ void matrix_zero(Matrix *rop)
 	memset(rop->data, 0, sizeof(float) * MAT_SIZE(rop));
 }
 
+void matrix_broadcast_add(Matrix *rop, Matrix *broadcast, Matrix *op)
+{
+	for (int i = 0; i < MAT_SIZE(rop); i++) {
+		int index = i % MAT_COLS(op);
+		MAT_GET(rop, i) = MAT_GET(op, i) + MAT_GET(broadcast, index);
+	}
+}
+
+void matrix_sum_cols(Matrix *rop, Matrix *op)
+{
+	for (int i = 0; i < MAT_COLS(op); i++) {
+		float sum = 0;
+		for (int j = 0; j < MAT_ROWS(op); j++) {
+			sum += MAT_AT(op, j, i);
+		}
+		MAT_AT(rop, 0, i) = sum;
+	}
+}
+

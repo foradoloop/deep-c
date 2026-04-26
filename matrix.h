@@ -29,6 +29,8 @@ void matrix_hadamard(Matrix *rop, Matrix *op1, Matrix *op2);
 void matrix_copy(Matrix *dst, Matrix *src);
 void matrix_map(Matrix *rop, Matrix *op, float (*fn)(float));
 void matrix_zero(Matrix *rop);
+void matrix_broadcast_add(Matrix *rop, Matrix *broadcast, Matrix *op);
+void matrix_sum_cols(Matrix *rop, Matrix *op);
 
 #endif
 
