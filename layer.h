@@ -21,7 +21,7 @@ struct layer {
 };
 typedef struct layer Layer;
 
-void layer_create(Layer *l, Arena *a, int in, int out, int act_type, int init_type);
+void layer_create(Layer *l, Arena *a, int in, int out, int batch_size, int act_type, int init_type);
 void layer_setup(Layer *l);
 Matrix *layer_forward(Layer *l, Matrix *input);
 Matrix *layer_backward(Layer *l, Matrix *output_grad);

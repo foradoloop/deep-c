@@ -22,7 +22,7 @@ Matrix **net_params(Net *net, Arena *a);
 Matrix **net_grad_params(Net *net, Arena *a);
 int net_num_params(Net *net);
 void net_copy(Net *dst, Net *src);
-Net *net_clone(Net *src, Arena *a);
+Net *net_clone(Net *src, int batch_size, Arena *a);
 
 #endif
 

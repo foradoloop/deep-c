@@ -103,7 +103,7 @@ void net_copy(Net *dst, Net *src)
 	}
 }
 
-Net *net_clone(Net *src, Arena *a)
+Net *net_clone(Net *src, int batch_size, Arena *a)
 {
 	Net *net;
 	int num_layers;
@@ -122,7 +122,7 @@ Net *net_clone(Net *src, Arena *a)
 		int in = MAT_ROWS(&ls->w);
 		int out = MAT_COLS(&ls->w);
 
-		layer_create(layers + i, a, in, out, act_type, init_type);
+		layer_create(layers + i, a, in, out, batch_size, act_type, init_type);
 		layer_copy(layers + i, ls);
 	}
 
