@@ -1,5 +1,6 @@
 #include "matrix.h"
 #include <string.h>
+#include "io.h"
 
 void matrix_create(Matrix *m, Arena *a, int rows, int cols)
 {
@@ -109,5 +110,46 @@ void matrix_sum_cols(Matrix *rop, Matrix *op)
 		}
 		MAT_AT(rop, 0, i) = sum;
 	}
+}
+
+void matrix_save_binary(Matrix *m, FILE *f)
+{
+	float *data;
+	int rows, cols;
+
+	data = MAT_DATA(m);
+	rows = MAT_ROWS(m);
+	cols = MAT_COLS(m);
+
+	xfwrite(&rows, sizeof(int), 1, f);
+	xfwrite(&cols, sizeof(int), 1, f);
+	xfwrite(data, sizeof(float), MAT_SIZE(m), f);
+}
+
+void matrix_load_binary(Matrix *m, FILE *f, Arena *a)
+{
+	float *data;
+	int rows, cols;
+	int size;
+
+	xfread(&rows, sizeof(int), 1, f);
+	xfread(&cols, sizeof(int), 1, f);
+	size = rows * cols;
+	data = arena_alloc_arr(a, float, size);
+
+	xfread(data, sizeof(float), size, f);
+
+	matrix_init(m, data, rows, cols);
+}
+
+float matrix_maxval(Matrix *m)
+{
+	float maxval = MAT_GET(m, 0);
+	
+	for (int i = 1; i < MAT_SIZE(m); i++) {
+		maxval = (MAT_GET(m, i) > maxval) ? MAT_GET(m, i) : maxval;
+	}
+
+	return maxval;
 }
 

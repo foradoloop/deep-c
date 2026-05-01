@@ -2,6 +2,7 @@
 #define MATRIX_H
 
 #include "arena.h"
+#include <stdio.h>
 
 #define MAT_DATA(m) ((m)->data)
 #define MAT_ROWS(m) ((m)->rows)
@@ -31,6 +32,11 @@ void matrix_map(Matrix *rop, Matrix *op, float (*fn)(float));
 void matrix_zero(Matrix *rop);
 void matrix_broadcast_add(Matrix *rop, Matrix *broadcast, Matrix *op);
 void matrix_sum_cols(Matrix *rop, Matrix *op);
+
+void matrix_save_binary(Matrix *m, FILE *f);
+void matrix_load_binary(Matrix *m, FILE *f, Arena *a);
+
+float matrix_maxval(Matrix *m);
 
 #endif
 
