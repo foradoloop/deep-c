@@ -24,5 +24,8 @@ int net_num_params(Net *net);
 void net_copy(Net *dst, Net *src);
 Net *net_clone(Net *src, int batch_size, Arena *a);
 
+void net_save_binary(Net *net, FILE *f);
+void net_load_binary(Net *net, Arena *a, int batch_size, FILE *f);
+
 #endif
 

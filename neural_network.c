@@ -1,10 +1,11 @@
 #include "neural_network.h"
+#include "io.h"
 
 void net_init(Net *net, Layer *layers, int num_layers, int loss_type)
 {
 	net->layers = layers;
 	net->num_layers = num_layers;
-	net->loss = loss(loss_type);
+	net->loss = _loss(loss_type);
 }
 
 void net_setup(Net *net)
@@ -131,5 +132,45 @@ Net *net_clone(Net *src, int batch_size, Arena *a)
 	net->loss = src->loss;
 
 	return net;
+}
+
+void net_save_binary(Net *net, FILE *f)
+{
+	int num_layers;
+	int loss;
+
+	num_layers = net->num_layers;
+	loss = net->loss->type;
+
+	xfwrite(&num_layers, sizeof(int), 1, f);
+	xfwrite(&loss, sizeof(int), 1, f);
+
+	for (int i = 0; i < num_layers; i++) {
+		Layer *l = net->layers + i;
+
+		layer_save_binary(l, f);
+	}
+}
+
+void net_load_binary(Net *net, Arena *a, int batch_size, FILE *f)
+{
+	int num_layers;
+	Layer *layers;
+	int loss;
+
+	xfread(&num_layers, sizeof(int), 1, f);
+	xfread(&loss, sizeof(int), 1, f);
+
+	layers = arena_alloc_arr(a, Layer, num_layers);
+
+	for (int i = 0; i < num_layers; i++) {
+		Layer *l = layers + i;
+
+		layer_load_binary(l, a, batch_size, f);
+	}
+
+	net->num_layers = num_layers;
+	net->layers = layers;
+	net->loss = _loss(loss);
 }
 
