@@ -4,7 +4,8 @@
 #include "matrix.h"
 
 enum {
-	MSE = 0
+	MSE = 0,
+	SCE
 };
 
 struct loss {
@@ -14,7 +15,7 @@ struct loss {
 };
 typedef struct loss Loss;
 
-const Loss *loss(int type);
+const Loss *_loss(int type);
 float loss_forward(const Loss *loss, Matrix *pred, Matrix *tar);
 void loss_backward(const Loss *loss, Matrix *grad_loss, Matrix *pred, Matrix *tar);
 

@@ -10,31 +10,17 @@ static float _relu_backward(float);
 static float _sigmoid_forward(float);
 static float _sigmoid_backward(float);
 
-static const Activation tanh_act = {
-	.type = TANH,
-	.forward = _tanh_forward,
-	.backward = _tanh_backward
-};
-
-static const Activation relu_act = {
-	.type = RELU,
-	.forward = _relu_forward,
-	.backward = _relu_backward
-};
-
-static const Activation sigmoid_act = {
-	.type = SIGMOID,
-	.forward = _sigmoid_forward,
-	.backward = _sigmoid_backward
-};
+static float _linear_forward(float x);
+static float _linear_backward(float y);
 
 static const Activation act_table[] = {
-	tanh_act,
-	relu_act,
-	sigmoid_act
+	{ .type = TANH, .forward = _tanh_forward, .backward = _tanh_backward },
+	{ .type = RELU, .forward = _relu_forward, .backward = _relu_backward },
+	{ .type = SIGMOID, .forward = _sigmoid_forward, .backward = _sigmoid_backward },
+	{ .type = LINEAR, .forward = _linear_forward, .backward = _linear_backward }
 };
 
-const Activation *activation(int type)
+const Activation *_act(int type)
 {
 	return &act_table[type];
 }
@@ -67,5 +53,17 @@ static float _sigmoid_forward(float x)
 static float _sigmoid_backward(float y)
 {
 	return y * (1.0f - y);
+}
+
+static float _linear_forward(float x)
+{
+	return x;
+}
+
+static float _linear_backward(float y)
+{
+	(void)y;
+
+	return 1.0f;
 }
 

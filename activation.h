@@ -4,7 +4,8 @@
 enum {
 	TANH = 0,
 	RELU,
-	SIGMOID
+	SIGMOID,
+	LINEAR
 };
 
 struct activation {
@@ -14,7 +15,7 @@ struct activation {
 };
 typedef struct activation Activation;
 
-const Activation *activation(int type);
+const Activation *_act(int type);
 
 #endif
 
