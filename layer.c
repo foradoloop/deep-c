@@ -1,5 +1,5 @@
 #include "layer.h"
-#include "prng.h"
+#include "io.h"
 
 void layer_create(Layer *l, Arena *a, int in, int out, int batch_size, int act_type, int init_type)
 {
@@ -17,7 +17,7 @@ void layer_create(Layer *l, Arena *a, int in, int out, int batch_size, int act_t
 	matrix_create(&l->grad_b, a, 1, out);
 	matrix_create(&l->grad_y, a, batch_size, in);
 
-	l->act = activation(act_type);
+	l->act = _act(act_type);
 	l->init = initializer(init_type);
 }
 
@@ -41,7 +41,6 @@ Matrix *layer_forward(Layer *l, Matrix *input)
 
 	/* Linear combination */
 	matrix_mul_ab(&l->i, &l->x, &l->w);
-//	matrix_add(&l->i, &l->i, &l->b);
 	matrix_broadcast_add(&l->i, &l->b, &l->i);
 
 	/* Output */
@@ -60,7 +59,6 @@ Matrix *layer_backward(Layer *l, Matrix *grad_y)
 	matrix_mul_atb(&l->grad_w, &l->x, &l->delta);
 
 	/* Bias gradient */
-//	matrix_copy(&l->grad_b, &l->delta);
 	matrix_sum_cols(&l->grad_b, &l->delta);
 
 	/* Output gradient */
@@ -73,5 +71,62 @@ void layer_copy(Layer *dst, Layer *src)
 {
 	matrix_copy(&dst->w, &src->w);
 	matrix_copy(&dst->b, &src->b);
+}
+
+void layer_save_binary(Layer *l, FILE *f)
+{
+	Matrix *w, *b;
+	int act;
+	int init;
+
+	w = &l->w;
+	b = &l->b;
+	act = l->act->type;
+	init = l->init->type;
+
+	matrix_save_binary(w, f);
+	matrix_save_binary(b, f);
+
+	xfwrite(&act, sizeof(int), 1, f);
+	xfwrite(&init, sizeof(int), 1, f);
+}
+
+void layer_load_binary(Layer *l, Arena *a, int batch_size, FILE *f)
+{
+	Matrix *w, *b, *x, *i, *y;
+	int act;
+	int init;
+	int in, out;
+
+	w = &l->w;
+	b = &l->b;
+
+	x = &l->x;
+	i = &l->i;
+	y = &l->y;
+
+	act = 0;
+	init = 0;
+
+	matrix_load_binary(w, f, a);
+	matrix_load_binary(b, f, a);
+
+	in = MAT_ROWS(w);
+	out = MAT_COLS(w);
+
+	matrix_create(x, a, batch_size, in); 
+	matrix_create(i, a, batch_size, out); 
+	matrix_create(y, a, batch_size, out); 
+
+	matrix_create(&l->di, a, batch_size, out);
+	matrix_create(&l->delta, a, batch_size, out);
+	matrix_create(&l->grad_w, a, in, out);
+	matrix_create(&l->grad_b, a, 1, out);
+	matrix_create(&l->grad_y, a, batch_size, in);
+
+	xfread(&act, sizeof(int), 1, f);
+	xfread(&init, sizeof(int), 1, f);
+	l->act = _act(act);
+	l->init = initializer(init);
 }
 

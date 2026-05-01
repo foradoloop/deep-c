@@ -27,5 +27,8 @@ Matrix *layer_forward(Layer *l, Matrix *input);
 Matrix *layer_backward(Layer *l, Matrix *output_grad);
 void layer_copy(Layer *dst, Layer *src);
 
+void layer_save_binary(Layer *l, FILE *f);
+void layer_load_binary(Layer *l, Arena *a, int batch_size, FILE *f);
+
 #endif
 
